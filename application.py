@@ -139,6 +139,8 @@ def fetch_data_from_db():
     Implement this function to fetch your data from the database.
     """
     # TODO: Implement the database call
+    create_db_table()
+
     with get_db_connection() as connection:
         with connection.cursor() as cursor:
             fetch_sql = """
