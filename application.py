@@ -118,9 +118,20 @@ def insert_data_into_db(payload):
     """
     create_db_table()
     # TODO: Implement the database call    
-    
-    raise NotImplementedError("Database insert function not implemented.")
+    title = payload.get("title")
+    description = payload.get("description")
+    image_url = payload.get("image_url")
+    date = payload.get("date")
+    location = payload.get("location")
 
+    with get_db_connection() as connection:
+        with connection.cursor() as cursor:
+            insert_sql = """
+            INSERT INTO events (title, description, image_url, date, location)
+            VALUES (%s, %s, %s, %s, %s)
+            """
+            cursor.execute(insert_sql, (title, description, image_url, date, location))
+        connection.commit()
 #Database Function Stub
 def fetch_data_from_db():
     """
@@ -128,8 +139,25 @@ def fetch_data_from_db():
     Implement this function to fetch your data from the database.
     """
     # TODO: Implement the database call
-    
-    raise NotImplementedError("Database fetch function not implemented.")
+    with get_db_connection() as connection:
+        with connection.cursor() as cursor:
+            fetch_sql = """
+            SELECT title, description, image_url, date, location
+            FROM events
+            ORDER BY date ASC
+            """
+            cursor.execute(fetch_sql)
+            rows = cursor.fetchall()
 
+    events = []
+    for row in rows:
+        events.append({
+            "date": row[3].strftime("%a, %d %b %Y 00:00:00 GMT"),
+            "title": row[0],
+            "description": row[1],
+            "location": row[4]
+        })
+
+    return events
 if __name__ == '__main__':
     application.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5000)))
